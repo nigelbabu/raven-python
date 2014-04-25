@@ -8,19 +8,25 @@ A Pylons-specific middleware exists to enable easy configuration from settings:
 
 ::
 
+    from paste.deploy import loadapp, appconfig
     from raven.contrib.pylons import Sentry
 
-    application = Sentry(application, config)
+    config_filepath = '/path/to/config.ini'
+    from paste.script.util.logging_config import fileConfig
+    fileConfig(config_filepath)
+    config = 'config:%s' % config_filepath
+    application = Sentry(loadapp(config), appconfig(config).local_conf)
 
-Configuration is handled via the sentry namespace:
+Configuration needs to be added into the app's namespace:
 
 .. code-block:: ini
 
-    [sentry]
-    dsn=http://public:secret@example.com/1
-    include_paths=my.package,my.other.package,
-    exclude_paths=my.package.crud
+    [app:main]
+    sentry.dsn=http://public:secret@example.com/1
+    sentry.include_paths=my.package,my.other.package,
+    sentry.exclude_paths=my.package.crud
 
+Remember to set `full_stack=false` in your configuration.
 
 Logger setup
 ------------
